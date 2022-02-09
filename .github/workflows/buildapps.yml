@@ -15,7 +15,6 @@ jobs:
         with:
           node-version: "16"
           cache: "npm"
-      - run: |
-          npm ci
-          npm install -g quasar
-          quasar build
+      - run: npm ci
+      - run: npm install -g quasar
+      - run: quasar build
