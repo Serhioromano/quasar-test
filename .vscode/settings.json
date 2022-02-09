@@ -1,0 +1,28 @@
+{
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "vue"
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "[vue]": {
+        "editor.defaultFormatter": "octref.vetur"
+    },
+    "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+    "javascript.format.placeOpenBraceOnNewLineForControlBlocks": false,
+    "javascript.format.placeOpenBraceOnNewLineForFunctions": false,
+    "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+    "typescript.format.placeOpenBraceOnNewLineForControlBlocks": false,
+    "typescript.format.semicolons": "insert",
+    "vetur.format.defaultFormatter.html": "prettyhtml",
+    "vetur.format.defaultFormatter.js": "prettier-eslint",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}
