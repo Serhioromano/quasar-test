@@ -6,8 +6,18 @@ on:
       - v*
 
 jobs:
+  release:
+    name: Create a release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create '${{ github.ref_name }}' -n "New version"
   build-spa:
     name: Build SPA application
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,5 +32,33 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          zip -r spa-${{ github.ref_name }}.zip ./dist/spa
-          gh release create '${{ github.ref_name }}' -n "New" spa-${{ github.ref_name }}.zip
+          cd dist/spa
+          zip -r ./spa-${{ github.ref_name }}.zip *
+          gh release upload '${{ github.ref_name }}' ./spa-${{ github.ref_name }}.zip
+
+  build-linux:
+    name: Build Linux application
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "npm"
+      - name: Prepare Node
+        run: |
+          npm ci
+          npm install -g @quasar/cli electron-installer-debian
+      - run: quasar build -m electron
+      - name: Pack
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch amd64
+          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch i386
+          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch x86_64
+          gh release upload '${{ github.ref_name }}' \
+            dist/installers/quasar-test_${{ github.ref_name }}_amd64.deb \
+            dist/installers/quasar-test_${{ github.ref_name }}_i386.deb \
+            dist/installers/quasar-test_${{ github.ref_name }}_x86_64.deb
