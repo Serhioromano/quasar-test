@@ -16,7 +16,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create '${{ github.ref_name }}' -n "New version"
-          
+
   # build-spa:
   #   name: Build SPA application
   #   needs: release
@@ -58,14 +58,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch x86_64
+          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch amd64
+          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch i386
+          version=${{ github.ref_name }}
           cd dist/installers
           ls -la
+          gh release upload '${{ github.ref_name }}' \
+            dist/installers/quasar-test_${version:1}_amd64.deb \
+            dist/installers/quasar-test_${version:1}_i386.deb \
+            dist/installers/quasar-test_${version:1}_x86_64.deb
 
 
 
-#          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch amd64
-#          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch i386
-#          gh release upload '${{ github.ref_name }}' \
-#            dist/installers/quasar-test_${{ github.ref_name }}_amd64.deb \
-#            dist/installers/quasar-test_${{ github.ref_name }}_i386.deb \
-#            dist/installers/quasar-test_${{ github.ref_name }}_x86_64.deb
