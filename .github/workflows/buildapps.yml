@@ -17,26 +17,27 @@ jobs:
         run: |
           gh release create '${{ github.ref_name }}' -n "New version"
 
-  # build-spa:
-  #   name: Build SPA application
-  #   needs: release
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: "16"
-  #         cache: "npm"
-  #     - run: npm ci
-  #     - run: npm install -g @quasar/cli
-  #     - run: quasar build
-  #     - name: Pack
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       run: |
-  #         cd dist/spa
-  #         zip -r ./spa-${{ github.ref_name }}.zip *
-  #         gh release upload '${{ github.ref_name }}' ./spa-${{ github.ref_name }}.zip
+  build-spa:
+    name: Build SPA application
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "npm"
+      - run: npm ci
+      - run: npm install -g @quasar/cli
+      - run: quasar build
+      - name: Pack
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist/spa
+          version=${{ github.ref_name }}
+          zip -r ./spa-${version:1}.zip *
+          gh release upload '${{ github.ref_name }}' ./spa-${version:1}.zip
 
   build-linux:
     name: Build Linux application
@@ -62,11 +63,10 @@ jobs:
           electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch i386
           version=${{ github.ref_name }}
           cd dist/installers
-          ls -la
           gh release upload '${{ github.ref_name }}' \
-            dist/installers/quasar-test_${version:1}_amd64.deb \
-            dist/installers/quasar-test_${version:1}_i386.deb \
-            dist/installers/quasar-test_${version:1}_x86_64.deb
+            quasar-test_${version:1}_amd64.deb \
+            quasar-test_${version:1}_i386.deb \
+            quasar-test_${version:1}_x86_64.deb
 
 
 
