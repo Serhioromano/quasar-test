@@ -17,32 +17,61 @@ jobs:
         run: |
           gh release create '${{ github.ref_name }}' -n "New version"
 
-  build-spa:
-    name: Build SPA application
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "16"
-          cache: "npm"
-      - run: npm ci
-      - run: npm install -g @quasar/cli
-      - run: quasar build
-      - name: Pack
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd dist/spa
-          version=${{ github.ref_name }}
-          zip -r ./spa-${version:1}.zip *
-          gh release upload '${{ github.ref_name }}' ./spa-${version:1}.zip
+  # build-spa:
+  #   name: Build SPA application
+  #   needs: release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: "16"
+  #         cache: "npm"
+  #     - run: npm ci
+  #     - run: npm install -g @quasar/cli
+  #     - run: quasar build
+  #     - name: Pack
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       run: |
+  #         cd dist/spa
+  #         version=${{ github.ref_name }}
+  #         zip -r ./spa-${version:1}.zip *
+  #         gh release upload '${{ github.ref_name }}' ./spa-${version:1}.zip
 
-  build-linux:
-    name: Build Linux application
+  # build-linux:
+  #   name: Build Linux application
+  #   needs: release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: "16"
+  #         cache: "npm"
+  #     - name: Prepare Node
+  #       run: |
+  #         npm ci
+  #         npm install -g @quasar/cli electron-installer-debian
+  #     - run: quasar build -m electron
+  #     - name: Pack
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       run: |
+  #         electron-installer-debian --src dist/electron/myapp-linux-x64/ --dest dist/installers/ --arch x86_64
+  #         electron-installer-debian --src dist/electron/myapp-linux-x64/ --dest dist/installers/ --arch amd64
+  #         electron-installer-debian --src dist/electron/myapp-linux-x64/ --dest dist/installers/ --arch i386
+  #         version=${{ github.ref_name }}
+  #         cd dist/installers
+  #         gh release upload '${{ github.ref_name }}' \
+  #           myapp_${version:1}_amd64.deb \
+  #           myapp_${version:1}_i386.deb \
+  #           myapp_${version:1}_x86_64.deb
+
+  build-windows:
+    name: Build Windows application
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -52,21 +81,35 @@ jobs:
       - name: Prepare Node
         run: |
           npm ci
-          npm install -g @quasar/cli electron-installer-debian
+          npm install electron-winstaller
+          npm install -g @quasar/cli
       - run: quasar build -m electron
-      - name: Pack
+      - name: Build Installer MSI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch x86_64
-          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch amd64
-          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch i386
+          node ./build.win.js
           version=${{ github.ref_name }}
-          cd dist/installers
+          cd dist
           gh release upload '${{ github.ref_name }}' \
-            quasar-test_${version:1}_amd64.deb \
-            quasar-test_${version:1}_i386.deb \
-            quasar-test_${version:1}_x86_64.deb
+            myappSetup.exe \
+            myappSetup.msi \
+            myapp-${version:1}-full.nupkg
+
+# - name: Build Installer Store
+#   env:
+#     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#   run: |
+#     npm install -g electron-windows-store
+#     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -force
+#     version=${{ github.ref_name }}
+#     cd dist
+#     electron-windows-store --input-directory .\electron  --output-directory .\installer --package-version 1.0.0.0 --package-name myelectronapp
+
+#     gh release upload '${{ github.ref_name }}' \
+#       myappSetup.exe \
+#       myappSetup.msi \
+#       myapp-${version:1}-full.nupkg
 
 
 
