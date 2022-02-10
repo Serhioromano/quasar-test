@@ -89,12 +89,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           node ./build.win.js
-          version=${{ github.ref_name }}
+          $version=${{ github.ref_name }}
           cd dist
           gh release upload '${{ github.ref_name }}' \
             myappSetup.exe \
             myappSetup.msi \
-            myapp-${version:1}-full.nupkg
+            "myapp-$($version.substring(1))-full.nupkg"
 
 # - name: Build Installer Store
 #   env:
