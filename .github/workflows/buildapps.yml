@@ -58,9 +58,9 @@ jobs:
         run: |
 #          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch amd64
 #          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch i386
+          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch x86_64
           cd dist/installers
           ls -la
-          electron-installer-debian --src dist/electron/quasar-test-linux-x64/ --dest dist/installers/ --arch x86_64
 #          gh release upload '${{ github.ref_name }}' \
 #            dist/installers/quasar-test_${{ github.ref_name }}_amd64.deb \
 #            dist/installers/quasar-test_${{ github.ref_name }}_i386.deb \
